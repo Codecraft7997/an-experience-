@@ -1,123 +1,119 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#08090d">
-<title>لحظتك | تأثير الكاميرا</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090a10"><title>تحكم بإيدك</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
-:root{--gold:#e6c56d;--bg:#08090d;--muted:#a9aab2}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 15%,#25232a 0,#101116 42%,#08090d 100%);color:#fff;font-family:Cairo,Arial,sans-serif;display:grid;place-items:center;padding:22px}
-.app{width:min(100%,560px);text-align:center}
-.brand{color:var(--gold);font-size:13px;letter-spacing:4px;font-weight:800;margin-bottom:8px}
-h1{font-size:clamp(25px,6vw,38px);margin:0 0 8px;font-weight:900}
-.sub{color:var(--muted);font-size:14px;margin:0 auto 22px;max-width:390px;line-height:1.9}
-.stage{position:relative;width:min(100%,420px);aspect-ratio:1/1;margin:auto;background:#11131a;border:1px solid #48413a;border-radius:25px;overflow:hidden;box-shadow:0 20px 70px #0009,0 0 35px #e6c56d12}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#28232a,#101116 48%,#08090d);color:#fff;font-family:Cairo,Arial,sans-serif;display:grid;place-items:center;padding:18px}
+.app{width:min(100%,600px);text-align:center}.tag{font-size:12px;letter-spacing:3px;color:#e6c56d;font-weight:800}h1{font-size:clamp(26px,6vw,38px);margin:4px 0}.desc{color:#b7b7c0;font-size:14px;line-height:1.9;margin:0 auto 18px;max-width:470px}
+.stage{width:min(100%,470px);aspect-ratio:1/1;margin:auto;position:relative;overflow:hidden;border:1px solid #827044;border-radius:24px;background:#111;box-shadow:0 20px 70px #0009}
 video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}
-#effect{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.frame{position:absolute;inset:17%;border:1px solid #e6c56d99;box-shadow:0 0 30px #e6c56d18;pointer-events:none}
-.frame:before,.frame:after{content:"";position:absolute;width:25px;height:25px;border-color:var(--gold);border-style:solid}
-.frame:before{top:-1px;right:-1px;border-width:2px 2px 0 0}
-.frame:after{bottom:-1px;left:-1px;border-width:0 0 2px 2px}
-.status{margin:16px 0 10px;color:#d8d8dd;font-size:13px;min-height:25px}
-.count{position:absolute;inset:0;display:grid;place-items:center;font-size:100px;font-weight:900;color:#f4d36d;text-shadow:0 5px 25px #000;opacity:0;pointer-events:none}
-.count.show{animation:count .85s ease both}
-@keyframes count{0%{opacity:0;transform:scale(1.7)}25%{opacity:1;transform:scale(1)}75%{opacity:1}100%{opacity:0;transform:scale(.75)}}
-.controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
-button{border:0;border-radius:14px;padding:13px 22px;font:800 14px Cairo;cursor:pointer;transition:.2s}
-button:active{transform:scale(.97)}
-.primary{background:linear-gradient(135deg,#f1d98e,#c59a3d);color:#17130b;min-width:165px;box-shadow:0 8px 25px #d4ad5140}
-.secondary{background:#252630;color:#fff;border:1px solid #454550}
-button:disabled{opacity:.45;cursor:not-allowed}
-.note{color:#858691;font-size:11px;line-height:1.8;margin:18px auto 0;max-width:420px}
-.hidden{display:none!important}
-#tiles{position:absolute;inset:0;pointer-events:none}
-.tile{position:absolute;background-repeat:no-repeat;will-change:transform,opacity;box-shadow:0 4px 16px #0008;border:1px solid #ffffff18}
-.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
-.flash.go{animation:flash .65s ease}
-@keyframes flash{0%{opacity:0}20%{opacity:.8}100%{opacity:0}}
-</style>
-</head>
-<body>
-<main class="app">
-  <div class="brand">CAMERA EXPERIENCE</div>
-  <h1>خليك مستعد للحظة ✨</h1>
-  <p class="sub">افتح الكاميرا، ظبّط وشك داخل الإطار، وابدأ التأثير السحري.</p>
-  <section class="stage" id="stage">
-    <video id="camera" autoplay playsinline muted></video>
-    <canvas id="effect"></canvas>
-    <div class="frame" id="frame"></div>
-    <div class="count" id="count">3</div>
-    <div id="tiles"></div>
-    <div class="flash" id="flash"></div>
-  </section>
-  <div class="status" id="status">اضغط «تشغيل الكاميرا» واسمح باستخدامها</div>
-  <div class="controls">
-    <button class="primary" id="cameraBtn">تشغيل الكاميرا</button>
-    <button class="secondary" id="startBtn" disabled>ابدأ التأثير</button>
-    <button class="secondary hidden" id="againBtn">جرّب تاني</button>
-  </div>
-  <p class="note">الكاميرا تعمل على جهازك ولا يتم رفع الصورة أو حفظها. يلزم فتح الصفحة عبر HTTPS أو localhost والسماح بإذن الكاميرا.</p>
+#handCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+#tiles{position:absolute;left:15%;top:15%;width:70%;height:70%;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);pointer-events:none;z-index:3}
+.tile{background-size:400% 400%;border:1px solid #e8d18b99;box-shadow:0 3px 12px #0008;transition:transform .48s cubic-bezier(.2,.8,.2,1),opacity .4s;will-change:transform}
+.hud{position:absolute;top:12px;right:12px;left:12px;display:flex;justify-content:space-between;z-index:7;pointer-events:none}
+.pill{background:#08090dcc;border:1px solid #d9bb6b88;border-radius:30px;padding:5px 11px;font-size:11px;color:#f1d98e;backdrop-filter:blur(8px)}
+#count{position:absolute;inset:0;display:grid;place-items:center;font-size:100px;font-weight:900;color:#f2d16f;text-shadow:0 5px 25px #000;z-index:8;opacity:0;pointer-events:none}
+#count.on{animation:pop .8s ease}@keyframes pop{0%{opacity:0;transform:scale(1.5)}25%,75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.7)}}
+.controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+button{font:800 14px Cairo;border:0;border-radius:13px;padding:12px 20px;cursor:pointer}
+.primary{background:linear-gradient(135deg,#f1d98e,#c59a3d);color:#17130b}.secondary{background:#292a33;color:white;border:1px solid #555}
+button:disabled{opacity:.45}
+#status{min-height:28px;margin-top:13px;color:#eee;font-size:13px}
+.guide{margin:12px auto 0;max-width:470px;color:#a5a5ae;font-size:12px;line-height:2}
+.guide b{color:#f1d98e}
+</style></head>
+<body><main class="app">
+<div class="tag">HAND MOTION EXPERIENCE</div><h1>حرّك إيدك… وشوف السحر ✨</h1>
+<p class="desc">الكاميرا هتظهر وشك وإيدك. افتح كفك أو اقفل إيدك علشان تتحكم في قطع الصورة بحركة إيدك.</p>
+<div class="stage" id="stage">
+<video id="video" autoplay playsinline muted></video><canvas id="handCanvas"></canvas>
+<div id="tiles"></div><div class="hud"><span class="pill" id="gesture">في انتظار الإيد…</span><span class="pill">الكاميرا مباشرة</span></div><div id="count">3</div>
+</div>
+<div id="status">اضغط تشغيل الكاميرا واسمح باستخدامها.</div>
+<div class="controls"><button class="primary" id="start">تشغيل الكاميرا</button><button class="secondary" id="reset" disabled>إعادة التأثير</button></div>
+<p class="guide"><b>افتح كفك ✋</b> لتفريق القطع — <b>اقفل إيدك ✊</b> لتجميعها — <b>قرّب الإبهام والسبابة 🤏</b> لعمل نبضة سريعة. خلي إيدك ظاهرة قدام الكاميرا.</p>
+<p class="guide">يحتاج اتصال إنترنت أول مرة لتحميل مكتبة تتبّع اليد، ويفتح على رابط HTTPS. الفيديو لا يتم رفعه أو حفظه.</p>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 <script>
-const video=document.getElementById('camera'), canvas=document.getElementById('effect'), ctx=canvas.getContext('2d');
-const cameraBtn=document.getElementById('cameraBtn'),startBtn=document.getElementById('startBtn'),againBtn=document.getElementById('againBtn');
-const statusEl=document.getElementById('status'),countEl=document.getElementById('count'),tilesEl=document.getElementById('tiles');
-const flash=document.getElementById('flash'),frame=document.getElementById('frame');
-let stream=null, busy=false, snapshot=null, raf=0;
-function sizeCanvas(){const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(r.width*dpr);canvas.height=Math.round(r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
-new ResizeObserver(sizeCanvas).observe(document.getElementById('stage'));sizeCanvas();
-cameraBtn.onclick=async()=>{
- try{
-  if(!stream){stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:1280}},audio:false});video.srcObject=stream;await video.play();}
-  statusEl.textContent='الكاميرا جاهزة — خلي وشك في منتصف الإطار';
-  cameraBtn.textContent='الكاميرا شغالة';cameraBtn.disabled=true;startBtn.disabled=false;
- }catch(e){statusEl.textContent='مش قادرين نفتح الكاميرا. راجع إذن الكاميرا وافتح الصفحة عبر HTTPS.';}
-};
-function countdown(n){return new Promise(resolve=>{countEl.textContent=n;countEl.classList.remove('show');void countEl.offsetWidth;countEl.classList.add('show');setTimeout(resolve,850)})}
-function capture(){
- const w=video.videoWidth,h=video.videoHeight,s=Math.min(w,h)*.72,sx=(w-s)/2,sy=(h-s)/2;
- const c=document.createElement('canvas');c.width=900;c.height=900;const x=c.getContext('2d');
- // Mirror the selfie so the captured result matches the preview.
- x.translate(900,0);x.scale(-1,1);x.drawImage(video,sx,sy,s,s,0,0,900,900);
- return c.toDataURL('image/jpeg',.92);
+const video=document.getElementById('video'),canvas=document.getElementById('handCanvas'),ctx=canvas.getContext('2d');
+const tiles=document.getElementById('tiles'),statusEl=document.getElementById('status'),gestureEl=document.getElementById('gesture'),countEl=document.getElementById('count');
+const startBtn=document.getElementById('start'),resetBtn=document.getElementById('reset');
+let camera=null,handModel=null,started=false,lastGesture='',tileEls=[],burstTimer=null;
+function fit(){const r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(d,0,0,d,0,0)}
+new ResizeObserver(fit).observe(document.getElementById('stage'));fit();
+const links=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[17,0]];
+function drawHand(lm){
+ const w=canvas.clientWidth,h=canvas.clientHeight;ctx.clearRect(0,0,w,h);
+ // Mirror landmarks to match the mirrored selfie preview.
+ const pts=lm.map(p=>({x:(1-p.x)*w,y:p.y*h}));
+ ctx.lineWidth=3;ctx.strokeStyle='#f2d16f';ctx.shadowColor='#e6c56d';ctx.shadowBlur=8;
+ links.forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(pts[a].x,pts[a].y);ctx.lineTo(pts[b].x,pts[b].y);ctx.stroke()});
+ pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x,p.y,i===0?5:4,0,Math.PI*2);ctx.fillStyle=i===4||i===8?'#fff':'#e6c56d';ctx.fill()});
+ ctx.shadowBlur=0;
+}
+function getGesture(l){
+ const fingerTips=[8,12,16,20],pips=[6,10,14,18];
+ const extended=fingerTips.map((t,i)=>l[t].y<l[pips[i]].y);
+ const count=extended.filter(Boolean).length;
+ const pinch=Math.hypot(l[4].x-l[8].x,l[4].y-l[8].y)<.055;
+ if(pinch)return 'pinch';if(count>=3)return 'open';if(count===0)return 'fist';return 'move';
+}
+function setTiles(scattered,impulse=false){
+ tileEls.forEach((el,i)=>{
+  const x=(Math.random()-.5)*(impulse?2.8:1.9),y=(Math.random()-.5)*(impulse?2.8:1.9);
+  el.style.opacity=scattered?'0.96':'1';
+  el.style.transform=scattered?`translate(${x*100}%,${y*100}%) rotate(${x*25}deg) scale(.82)`:'translate(0,0) rotate(0) scale(1)';
+ });
 }
 function makeTiles(data){
- tilesEl.innerHTML='';const img=new Image();
- img.onload=()=>{
-  const n=4,cell=100/n,items=[];
-  for(let y=0;y<n;y++)for(let x=0;x<n;x++){
-   const el=document.createElement('div');el.className='tile';
-   el.style.width=cell+'%';el.style.height=cell+'%';
-   el.style.left=(x*cell)+'%';el.style.top=(y*cell)+'%';
-   el.style.backgroundImage=`url(${data})`;el.style.backgroundSize='400% 400%';
-   el.style.backgroundPosition=`${x/(n-1)*100}% ${y/(n-1)*100}%`;
-   const dx=(Math.random()-.5)*stage.clientWidth*.9,dy=(Math.random()-.5)*stage.clientHeight*.9;
-   el.style.transform=`translate(${dx}px,${dy}px) rotate(${(Math.random()-.5)*50}deg) scale(.45)`;
-   el.style.opacity='0';tilesEl.appendChild(el);items.push({el,dx,dy});
+ tiles.innerHTML='';tileEls=[];
+ for(let y=0;y<4;y++)for(let x=0;x<4;x++){
+  const el=document.createElement('div');el.className='tile';
+  el.style.backgroundImage=`url(${data})`;
+  el.style.backgroundPosition=`${x*100/3}% ${y*100/3}%`;
+  tiles.appendChild(el);tileEls.push(el);
+ }
+ setTiles(false);
+}
+function snapPhoto(){
+ const s=Math.min(video.videoWidth,video.videoHeight)*.72,sx=(video.videoWidth-s)/2,sy=(video.videoHeight-s)/2;
+ const c=document.createElement('canvas');c.width=800;c.height=800;const x=c.getContext('2d');
+ x.translate(800,0);x.scale(-1,1);x.drawImage(video,sx,sy,s,s,0,0,800,800);return c.toDataURL('image/jpeg',.9);
+}
+async function countdown(n){countEl.textContent=n;countEl.classList.remove('on');void countEl.offsetWidth;countEl.classList.add('on');await new Promise(r=>setTimeout(r,800))}
+async function onResults(results){
+ if(!started)return;
+ const hands=results.multiHandLandmarks||[];
+ if(hands.length){
+  const l=hands[0];drawHand(l);const g=getGesture(l);
+  const labels={open:'كف مفتوح ✋',fist:'قبضة ✊',pinch:'ضمّ الإبهام والسبابة 🤏',move:'حرّك إيدك'};
+  gestureEl.textContent=labels[g]||'إيدك ظاهرة';
+  if(g!==lastGesture){
+   lastGesture=g;
+   if(g==='open'){setTiles(true);statusEl.textContent='تمام! الكف المفتوح فرّق قطع الصورة.'}
+   else if(g==='fist'){setTiles(false);statusEl.textContent='ممتاز! القبضة جمّعت قطع الصورة.'}
+   else if(g==='pinch'){setTiles(true,true);statusEl.textContent='نبضة! حرّك إيدك لتشوف القطع بتتحرك.'}
   }
-  requestAnimationFrame(()=>items.forEach((it,i)=>setTimeout(()=>{
-   it.el.style.transition='transform .85s cubic-bezier(.2,.8,.2,1),opacity .5s';
-   it.el.style.transform='translate(0,0) rotate(0) scale(1)';it.el.style.opacity='1';
-  },i*45)));
-  setTimeout(()=>{
-   flash.classList.remove('go');void flash.offsetWidth;flash.classList.add('go');
-   items.forEach((it,i)=>setTimeout(()=>{
-    it.el.style.transition='transform .8s ease,opacity .8s';it.el.style.transform=`translate(${it.dx*1.5}px,${it.dy*1.5}px) rotate(${(Math.random()-.5)*100}deg) scale(.7)`;it.el.style.opacity='0';
-   },i*18));
-  },2600);
-  setTimeout(()=>{tilesEl.innerHTML='';busy=false;statusEl.textContent='خلص التأثير! تقدر تعيده وقت ما تحب.';againBtn.classList.remove('hidden');startBtn.classList.add('hidden')},3900);
- };img.src=data;
+ }else{ctx.clearRect(0,0,canvas.width,canvas.height);gestureEl.textContent='ورّي الكاميرا إيدك';lastGesture='';}
 }
 startBtn.onclick=async()=>{
- if(busy||!stream)return;busy=true;startBtn.disabled=true;againBtn.classList.add('hidden');statusEl.textContent='ثبت وشك واستعد...';
- for(let i=3;i>=1;i--)await countdown(i);
- snapshot=capture();statusEl.textContent='الصورة بتتكوّن...';frame.classList.add('hidden');makeTiles(snapshot);
+ try{
+  if(!navigator.mediaDevices?.getUserMedia)throw new Error('secure');
+  const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:1280,height:720},audio:false});
+  video.srcObject=stream;await video.play();started=true;fit();
+  statusEl.textContent='ثبّت وشك في المنتصف… بنجهّز التأثير';
+  for(let n=3;n>0;n--)await countdown(n);
+  makeTiles(snapPhoto());statusEl.textContent='الصورة اتقسمت! استخدم إيدك للتحكم في القطع.';
+  startBtn.disabled=true;resetBtn.disabled=false;
+  handModel=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+  handModel.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.65,minTrackingConfidence:.6});
+  handModel.onResults(onResults);
+  camera=new Camera(video,{onFrame:async()=>{if(handModel)await handModel.send({image:video})},width:640,height:480});camera.start();
+ }catch(e){statusEl.textContent='تعذّر تشغيل الكاميرا. افتح الموقع عبر HTTPS واسمح بإذن الكاميرا.';started=false}
 };
-againBtn.onclick=()=>{tilesEl.innerHTML='';frame.classList.remove('hidden');againBtn.classList.add('hidden');startBtn.classList.remove('hidden');startBtn.disabled=false;statusEl.textContent='جاهز؟ ابدأ التأثير من جديد.'};
-window.addEventListener('beforeunload',()=>stream?.getTracks().forEach(t=>t.stop()));
-</script>
-</body>
-</html>
+resetBtn.onclick=()=>{if(!started)return;makeTiles(snapPhoto());statusEl.textContent='اتصورت لقطة جديدة — اتحكم بإيدك!';lastGesture=''};
+</script></body></html>
