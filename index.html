@@ -1,119 +1,138 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#090a10"><title>تحكم بإيدك</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#08090d"><title>Puzzle Cam | تحكم باليد</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0,#28232a,#101116 48%,#08090d);color:#fff;font-family:Cairo,Arial,sans-serif;display:grid;place-items:center;padding:18px}
-.app{width:min(100%,600px);text-align:center}.tag{font-size:12px;letter-spacing:3px;color:#e6c56d;font-weight:800}h1{font-size:clamp(26px,6vw,38px);margin:4px 0}.desc{color:#b7b7c0;font-size:14px;line-height:1.9;margin:0 auto 18px;max-width:470px}
-.stage{width:min(100%,470px);aspect-ratio:1/1;margin:auto;position:relative;overflow:hidden;border:1px solid #827044;border-radius:24px;background:#111;box-shadow:0 20px 70px #0009}
-video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}
-#handCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
-#tiles{position:absolute;left:15%;top:15%;width:70%;height:70%;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);pointer-events:none;z-index:3}
-.tile{background-size:400% 400%;border:1px solid #e8d18b99;box-shadow:0 3px 12px #0008;transition:transform .48s cubic-bezier(.2,.8,.2,1),opacity .4s;will-change:transform}
-.hud{position:absolute;top:12px;right:12px;left:12px;display:flex;justify-content:space-between;z-index:7;pointer-events:none}
-.pill{background:#08090dcc;border:1px solid #d9bb6b88;border-radius:30px;padding:5px 11px;font-size:11px;color:#f1d98e;backdrop-filter:blur(8px)}
-#count{position:absolute;inset:0;display:grid;place-items:center;font-size:100px;font-weight:900;color:#f2d16f;text-shadow:0 5px 25px #000;z-index:8;opacity:0;pointer-events:none}
-#count.on{animation:pop .8s ease}@keyframes pop{0%{opacity:0;transform:scale(1.5)}25%,75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.7)}}
-.controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
-button{font:800 14px Cairo;border:0;border-radius:13px;padding:12px 20px;cursor:pointer}
-.primary{background:linear-gradient(135deg,#f1d98e,#c59a3d);color:#17130b}.secondary{background:#292a33;color:white;border:1px solid #555}
-button:disabled{opacity:.45}
-#status{min-height:28px;margin-top:13px;color:#eee;font-size:13px}
-.guide{margin:12px auto 0;max-width:470px;color:#a5a5ae;font-size:12px;line-height:2}
-.guide b{color:#f1d98e}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050609;color:white;font-family:Cairo,Arial,sans-serif}
+#video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#111;z-index:0}
+#shade{position:fixed;inset:0;background:linear-gradient(180deg,#0009,transparent 24%,transparent 68%,#0008);z-index:1;pointer-events:none}
+#top{position:fixed;z-index:8;top:env(safe-area-inset-top,10px);left:0;right:0;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;pointer-events:none}
+.pill{background:#08090dcc;border:1px solid #d8b95788;border-radius:8px;padding:7px 10px;font-size:10px;letter-spacing:.5px;color:#f4d77d;backdrop-filter:blur(9px)}
+#counter{font-weight:800}
+#puzzle{position:fixed;z-index:4;width:min(72vw, min(72vh,390px));aspect-ratio:1;left:50%;top:47%;transform:translate(-50%,-50%);border:2px solid #e4c34d;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);box-shadow:0 0 0 100vmax #00000008,0 0 35px #f2d15a38;direction:ltr}
+.slot{position:relative;border:1px solid #b7d39c99;background:#ffffff12;overflow:visible}
+.slot:after{content:attr(data-n);position:absolute;top:3px;left:5px;color:#fff7;font:10px Arial;pointer-events:none}
+.piece{position:absolute;inset:0;background-repeat:no-repeat;filter:grayscale(1) contrast(1.06);border:1px solid #fff5;box-shadow:0 3px 14px #0008;touch-action:none;cursor:grab;z-index:2}
+.piece.drag{z-index:20;filter:grayscale(1) contrast(1.12) drop-shadow(0 10px 14px #000b);border:2px solid #f1d46c}
+.piece.done{border-color:#b9d89a;box-shadow:inset 0 0 0 1px #b9d89a}
+#floating{position:fixed;inset:0;z-index:6;pointer-events:none}
+#hand{position:fixed;z-index:7;inset:0;width:100%;height:100%;pointer-events:none}
+#cursor{position:fixed;z-index:9;width:24px;height:24px;border:2px solid #ffe17b;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 17px #ffd95a;background:#ffd95a22;display:none}
+#cursor.pinched{background:#ffe17b99;transform:translate(-50%,-50%) scale(.72)}
+#startScreen{position:fixed;inset:0;z-index:30;background:radial-gradient(ellipse at 50% 40%,#28242a,#090a0f 72%);display:grid;place-items:center;padding:25px;text-align:center}
+.panel{width:min(100%,440px)}.brand{font-size:11px;letter-spacing:4px;color:#e8c75f;font-weight:900}h1{font-size:clamp(27px,7vw,42px);margin:8px 0}.panel p{color:#c0c0c8;font-size:14px;line-height:2;margin:0 auto 22px}
+button{font:800 14px Cairo;border:0;border-radius:12px;padding:13px 23px;cursor:pointer;background:linear-gradient(135deg,#f3dc91,#c59b3e);color:#17130b}
+#message{position:fixed;z-index:10;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);left:50%;transform:translateX(-50%);width:max-content;max-width:90vw;text-align:center;background:#090a0dcc;border:1px solid #d8b95777;border-radius:10px;padding:9px 14px;font-size:12px;backdrop-filter:blur(10px)}
+#restart{position:fixed;z-index:11;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);left:50%;transform:translateX(-50%);display:none;padding:8px 16px;font-size:12px}
+#countdown{position:fixed;inset:0;z-index:20;display:none;place-items:center;font-size:100px;font-weight:900;color:#f5d56e;text-shadow:0 6px 25px #000}
+#countdown.show{display:grid;animation:count .8s ease}@keyframes count{0%{opacity:0;transform:scale(1.5)}25%,75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.7)}}
+#permission{font-size:11px;color:#92929b;margin-top:15px;line-height:1.8}
 </style></head>
-<body><main class="app">
-<div class="tag">HAND MOTION EXPERIENCE</div><h1>حرّك إيدك… وشوف السحر ✨</h1>
-<p class="desc">الكاميرا هتظهر وشك وإيدك. افتح كفك أو اقفل إيدك علشان تتحكم في قطع الصورة بحركة إيدك.</p>
-<div class="stage" id="stage">
-<video id="video" autoplay playsinline muted></video><canvas id="handCanvas"></canvas>
-<div id="tiles"></div><div class="hud"><span class="pill" id="gesture">في انتظار الإيد…</span><span class="pill">الكاميرا مباشرة</span></div><div id="count">3</div>
-</div>
-<div id="status">اضغط تشغيل الكاميرا واسمح باستخدامها.</div>
-<div class="controls"><button class="primary" id="start">تشغيل الكاميرا</button><button class="secondary" id="reset" disabled>إعادة التأثير</button></div>
-<p class="guide"><b>افتح كفك ✋</b> لتفريق القطع — <b>اقفل إيدك ✊</b> لتجميعها — <b>قرّب الإبهام والسبابة 🤏</b> لعمل نبضة سريعة. خلي إيدك ظاهرة قدام الكاميرا.</p>
-<p class="guide">يحتاج اتصال إنترنت أول مرة لتحميل مكتبة تتبّع اليد، ويفتح على رابط HTTPS. الفيديو لا يتم رفعه أو حفظه.</p>
-</main>
+<body>
+<video id="video" autoplay playsinline muted></video><div id="shade"></div>
+<div id="top"><div class="pill">PUZZLE CAM · HAND FRAME CAPTURE</div><div class="pill" id="handStatus">● في انتظار اليد</div><div class="pill" id="counter">0 / 9 قطع</div></div>
+<div id="puzzle"></div><canvas id="hand"></canvas><div id="cursor"></div><div id="floating"></div>
+<div id="message">اضغط بدء التجربة ثم قرّب الإبهام من السبابة لالتقاط القطعة</div>
+<button id="restart">إعادة اللغز</button><div id="countdown"></div>
+<section id="startScreen"><div class="panel"><div class="brand">PUZZLE CAM · INTERACTIVE</div><h1>ركّب صورتك بإيدك</h1><p>الكاميرا هتملأ الشاشة. هتظهر صورتك في لغز 3×3، امسك أي قطعة بضم الإبهام والسبابة، حرّكها لمكانها الصحيح وسيبها.</p><button id="begin">ابدأ وافتح الكاميرا</button><div id="permission">استخدم Chrome واسمح بالكاميرا. الصفحة لازم تكون على HTTPS، والإنترنت مطلوب لتشغيل تتبّع اليد.</div></div></section>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 <script>
-const video=document.getElementById('video'),canvas=document.getElementById('handCanvas'),ctx=canvas.getContext('2d');
-const tiles=document.getElementById('tiles'),statusEl=document.getElementById('status'),gestureEl=document.getElementById('gesture'),countEl=document.getElementById('count');
-const startBtn=document.getElementById('start'),resetBtn=document.getElementById('reset');
-let camera=null,handModel=null,started=false,lastGesture='',tileEls=[],burstTimer=null;
-function fit(){const r=canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(d,0,0,d,0,0)}
-new ResizeObserver(fit).observe(document.getElementById('stage'));fit();
+const video=document.getElementById('video'),puzzle=document.getElementById('puzzle'),handCanvas=document.getElementById('hand'),hctx=handCanvas.getContext('2d');
+const cursor=document.getElementById('cursor'),message=document.getElementById('message'),counter=document.getElementById('counter'),handStatus=document.getElementById('handStatus');
+const startScreen=document.getElementById('startScreen'),begin=document.getElementById('begin'),restart=document.getElementById('restart'),countdown=document.getElementById('countdown');
+let stream,mpCamera,hands,started=false,tiles=[],placed=0,held=null,grabOffset={x:0,y:0},pinchWas=false,faceData=null,frameW=0,frameH=0;
 const links=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[17,0]];
-function drawHand(lm){
- const w=canvas.clientWidth,h=canvas.clientHeight;ctx.clearRect(0,0,w,h);
- // Mirror landmarks to match the mirrored selfie preview.
- const pts=lm.map(p=>({x:(1-p.x)*w,y:p.y*h}));
- ctx.lineWidth=3;ctx.strokeStyle='#f2d16f';ctx.shadowColor='#e6c56d';ctx.shadowBlur=8;
- links.forEach(([a,b])=>{ctx.beginPath();ctx.moveTo(pts[a].x,pts[a].y);ctx.lineTo(pts[b].x,pts[b].y);ctx.stroke()});
- pts.forEach((p,i)=>{ctx.beginPath();ctx.arc(p.x,p.y,i===0?5:4,0,Math.PI*2);ctx.fillStyle=i===4||i===8?'#fff':'#e6c56d';ctx.fill()});
- ctx.shadowBlur=0;
+function resize(){handCanvas.width=innerWidth*(devicePixelRatio||1);handCanvas.height=innerHeight*(devicePixelRatio||1);handCanvas.style.width=innerWidth+'px';handCanvas.style.height=innerHeight+'px';hctx.setTransform(devicePixelRatio||1,0,0,devicePixelRatio||1,0,0)}
+addEventListener('resize',resize);resize();
+function captureFace(){
+ const w=video.videoWidth,h=video.videoHeight,side=Math.min(w,h)*.58,sx=(w-side)/2,sy=(h-side)*.36;
+ const c=document.createElement('canvas');c.width=600;c.height=600;const x=c.getContext('2d');
+ x.translate(600,0);x.scale(-1,1);x.filter='grayscale(1) contrast(1.05)';x.drawImage(video,sx,sy,side,side,0,0,600,600);return c.toDataURL('image/jpeg',.92);
 }
-function getGesture(l){
- const fingerTips=[8,12,16,20],pips=[6,10,14,18];
- const extended=fingerTips.map((t,i)=>l[t].y<l[pips[i]].y);
- const count=extended.filter(Boolean).length;
- const pinch=Math.hypot(l[4].x-l[8].x,l[4].y-l[8].y)<.055;
- if(pinch)return 'pinch';if(count>=3)return 'open';if(count===0)return 'fist';return 'move';
-}
-function setTiles(scattered,impulse=false){
- tileEls.forEach((el,i)=>{
-  const x=(Math.random()-.5)*(impulse?2.8:1.9),y=(Math.random()-.5)*(impulse?2.8:1.9);
-  el.style.opacity=scattered?'0.96':'1';
-  el.style.transform=scattered?`translate(${x*100}%,${y*100}%) rotate(${x*25}deg) scale(.82)`:'translate(0,0) rotate(0) scale(1)';
- });
-}
-function makeTiles(data){
- tiles.innerHTML='';tileEls=[];
- for(let y=0;y<4;y++)for(let x=0;x<4;x++){
-  const el=document.createElement('div');el.className='tile';
-  el.style.backgroundImage=`url(${data})`;
-  el.style.backgroundPosition=`${x*100/3}% ${y*100/3}%`;
-  tiles.appendChild(el);tileEls.push(el);
+function buildPuzzle(){
+ puzzle.innerHTML='';tiles=[];placed=0;counter.textContent='0 / 9 قطع';
+ const order=[...Array(9).keys()].sort(()=>Math.random()-.5);
+ for(let i=0;i<9;i++){
+  const slot=document.createElement('div');slot.className='slot';slot.dataset.n=i+1;puzzle.appendChild(slot);
  }
- setTiles(false);
+ order.forEach((correct,index)=>{
+  const piece=document.createElement('div');piece.className='piece';piece.dataset.correct=correct;
+  const col=correct%3,row=Math.floor(correct/3);
+  piece.style.backgroundImage=`url("${faceData}")`;
+  piece.style.backgroundSize='300% 300%';
+  piece.style.backgroundPosition=`${col*50}% ${row*50}%`;
+  piece.style.left='0';piece.style.top='0';
+  // Each piece starts in its shuffled slot, then is physically picked up and moved.
+  const home=puzzle.children[index];home.appendChild(piece);
+  const target=puzzle.children[correct];
+  tiles.push({el:piece,correct,home,target,done:false});
+ }
 }
-function snapPhoto(){
- const s=Math.min(video.videoWidth,video.videoHeight)*.72,sx=(video.videoWidth-s)/2,sy=(video.videoHeight-s)/2;
- const c=document.createElement('canvas');c.width=800;c.height=800;const x=c.getContext('2d');
- x.translate(800,0);x.scale(-1,1);x.drawImage(video,sx,sy,s,s,0,0,800,800);return c.toDataURL('image/jpeg',.9);
+function xyFromLandmark(l){return {x:(1-l.x)*innerWidth,y:l.y*innerHeight}}
+function handResults(res){
+ hctx.clearRect(0,0,innerWidth,innerHeight);
+ const lm=res.multiHandLandmarks?.[0];
+ if(!lm){handStatus.textContent='● ورّي الكاميرا إيدك';cursor.style.display='none';pinchWas=false;return}
+ handStatus.textContent='● اليد متتبّعة';
+ const pts=lm.map(xyFromLandmark);
+ hctx.lineWidth=3;hctx.strokeStyle='#f2d16f';hctx.shadowColor='#f2d16f';hctx.shadowBlur=8;
+ links.forEach(([a,b])=>{hctx.beginPath();hctx.moveTo(pts[a].x,pts[a].y);hctx.lineTo(pts[b].x,pts[b].y);hctx.stroke()});
+ pts.forEach((p,i)=>{hctx.beginPath();hctx.arc(p.x,p.y,i===4||i===8?6:3.5,0,Math.PI*2);hctx.fillStyle='#ffe17b';hctx.fill()});
+ hctx.shadowBlur=0;
+ const thumb=pts[4],index=pts[8],mid={x:(thumb.x+index.x)/2,y:(thumb.y+index.y)/2};
+ const dist=Math.hypot(thumb.x-index.x,thumb.y-index.y);
+ const pinched=dist<Math.min(innerWidth,innerHeight)*.052;
+ cursor.style.display='block';cursor.style.left=mid.x+'px';cursor.style.top=mid.y+'px';cursor.classList.toggle('pinched',pinched);
+ if(pinched&&!pinchWas&&!held)grab(mid);
+ if(pinched&&held)moveHeld(mid);
+ if(!pinched&&pinchWas&&held)dropHeld(mid);
+ pinchWas=pinched;
 }
-async function countdown(n){countEl.textContent=n;countEl.classList.remove('on');void countEl.offsetWidth;countEl.classList.add('on');await new Promise(r=>setTimeout(r,800))}
-async function onResults(results){
- if(!started)return;
- const hands=results.multiHandLandmarks||[];
- if(hands.length){
-  const l=hands[0];drawHand(l);const g=getGesture(l);
-  const labels={open:'كف مفتوح ✋',fist:'قبضة ✊',pinch:'ضمّ الإبهام والسبابة 🤏',move:'حرّك إيدك'};
-  gestureEl.textContent=labels[g]||'إيدك ظاهرة';
-  if(g!==lastGesture){
-   lastGesture=g;
-   if(g==='open'){setTiles(true);statusEl.textContent='تمام! الكف المفتوح فرّق قطع الصورة.'}
-   else if(g==='fist'){setTiles(false);statusEl.textContent='ممتاز! القبضة جمّعت قطع الصورة.'}
-   else if(g==='pinch'){setTiles(true,true);statusEl.textContent='نبضة! حرّك إيدك لتشوف القطع بتتحرك.'}
+function grab(pos){
+ // Pick the visible loose tile whose rectangle is under the pinch point.
+ const candidates=tiles.filter(t=>!t.done);
+ for(let i=candidates.length-1;i>=0;i--){
+  const t=candidates[i],r=t.el.getBoundingClientRect();
+  if(pos.x>=r.left&&pos.x<=r.right&&pos.y>=r.top&&pos.y<=r.bottom){
+   held=t;grabOffset={x:pos.x-r.left,y:pos.y-r.top};t.el.classList.add('drag');t.el.style.position='fixed';t.el.style.width=r.width+'px';t.el.style.height=r.height+'px';t.el.style.left=r.left+'px';t.el.style.top=r.top+'px';document.body.appendChild(t.el);
+   message.textContent='امسك القطعة وحرّك إيدك لمكانها الصحيح';return;
   }
- }else{ctx.clearRect(0,0,canvas.width,canvas.height);gestureEl.textContent='ورّي الكاميرا إيدك';lastGesture='';}
+ }
+ message.textContent='قرّب إيدك من قطعة عشان تمسكها';
 }
-startBtn.onclick=async()=>{
+function moveHeld(pos){if(!held)return;held.el.style.left=(pos.x-grabOffset.x)+'px';held.el.style.top=(pos.y-grabOffset.y)+'px'}
+function dropHeld(pos){
+ if(!held)return;const t=held, target=t.target.getBoundingClientRect(),cx=pos.x,cy=pos.y;
+ t.el.classList.remove('drag');
+ const inside=cx>=target.left-12&&cx<=target.right+12&&cy>=target.top-12&&cy<=target.bottom+12;
+ if(inside){
+  t.target.appendChild(t.el);t.el.removeAttribute('style');t.el.style.backgroundImage=`url("${faceData}")`;t.el.style.backgroundSize='300% 300%';t.el.style.backgroundPosition=`${(t.correct%3)*50}% ${Math.floor(t.correct/3)*50}%`;t.el.classList.add('done');t.done=true;placed++;counter.textContent=placed+' / 9 قطع';
+  message.textContent=placed===9?'اكتملت الصورة! برافو عليك 🎉':'صح! القطعة اتحطت في مكانها.';
+  if(placed===9){restart.style.display='block';}
+ }else{
+  // Return the piece to its original loose cell if it was not placed correctly.
+  t.home.appendChild(t.el);t.el.removeAttribute('style');t.el.style.backgroundImage=`url("${faceData}")`;t.el.style.backgroundSize='300% 300%';t.el.style.backgroundPosition=`${(t.correct%3)*50}% ${Math.floor(t.correct/3)*50}%`;
+  message.textContent='مش مكانها — جرّب تحطها في مكان تاني';
+ }
+ held=null;
+}
+async function tick(n){countdown.textContent=n;countdown.classList.remove('show');void countdown.offsetWidth;countdown.classList.add('show');await new Promise(r=>setTimeout(r,850))}
+begin.onclick=async()=>{
  try{
-  if(!navigator.mediaDevices?.getUserMedia)throw new Error('secure');
-  const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:1280,height:720},audio:false});
-  video.srcObject=stream;await video.play();started=true;fit();
-  statusEl.textContent='ثبّت وشك في المنتصف… بنجهّز التأثير';
-  for(let n=3;n>0;n--)await countdown(n);
-  makeTiles(snapPhoto());statusEl.textContent='الصورة اتقسمت! استخدم إيدك للتحكم في القطع.';
-  startBtn.disabled=true;resetBtn.disabled=false;
-  handModel=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
-  handModel.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.65,minTrackingConfidence:.6});
-  handModel.onResults(onResults);
-  camera=new Camera(video,{onFrame:async()=>{if(handModel)await handModel.send({image:video})},width:640,height:480});camera.start();
- }catch(e){statusEl.textContent='تعذّر تشغيل الكاميرا. افتح الموقع عبر HTTPS واسمح بإذن الكاميرا.';started=false}
+  begin.disabled=true;begin.textContent='بنفتح الكاميرا...';
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:false});
+  video.srcObject=stream;await video.play();startScreen.style.display='none';resize();
+  for(let n=3;n>0;n--)await tick(n);
+  faceData=captureFace();buildPuzzle();message.textContent='ضم الإبهام والسبابة فوق قطعة، واسحبها لمكانها الصحيح.';
+  hands=new Hands({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`});
+  hands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.72,minTrackingConfidence:.7});
+  hands.onResults(handResults);
+  mpCamera=new Camera(video,{onFrame:async()=>{if(started&&hands)await hands.send({image:video})},width:640,height:480});started=true;mpCamera.start();
+ }catch(e){begin.disabled=false;begin.textContent='حاول تشغيل الكاميرا مرة أخرى';document.getElementById('permission').textContent='لم تعمل الكاميرا. تأكد من HTTPS وإذن الكاميرا، ثم جرّب Chrome.'}
 };
-resetBtn.onclick=()=>{if(!started)return;makeTiles(snapPhoto());statusEl.textContent='اتصورت لقطة جديدة — اتحكم بإيدك!';lastGesture=''};
+restart.onclick=()=>{faceData=captureFace();buildPuzzle();restart.style.display='none';message.textContent='لغز جديد! امسك القطع بضم الإبهام والسبابة.'};
+addEventListener('beforeunload',()=>stream?.getTracks().forEach(t=>t.stop()));
 </script></body></html>
