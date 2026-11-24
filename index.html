@@ -32,7 +32,8 @@ button:disabled{opacity:.6}
 #message{position:fixed;z-index:10;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);left:50%;transform:translateX(-50%);width:max-content;max-width:90vw;text-align:center;background:#090a0dcc;border:1px solid #d8b95777;border-radius:10px;padding:9px 14px;font-size:12px;backdrop-filter:blur(10px)}
 #restart{position:fixed;z-index:11;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);left:50%;transform:translateX(-50%);display:none;padding:8px 16px;font-size:12px}
 #countdown{position:fixed;inset:0;z-index:20;display:none;place-items:center;font-size:100px;font-weight:900;color:#f5d56e;text-shadow:0 6px 25px #000}
-#countdown.show{display:grid;animation:count .8s ease}
+#countdown.show{display:grid;animation:count .8s ease;gap:22px;align-content:center;justify-items:center}
+#skipCountdown{font:800 13px Cairo;padding:9px 22px;background:#171820;color:#f5d56e;border:1px solid #d8b957;border-radius:10px}
 @keyframes count{0%{opacity:0;transform:scale(1.5)}25%,75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.7)}}
 #permission{font-size:11px;color:#92929b;margin-top:15px;line-height:1.8}
 </style>
@@ -42,7 +43,7 @@ button:disabled{opacity:.6}
 <div id="top"><div class="pill">PUZZLE CAM · HAND CONTROL</div><div class="pill" id="handStatus">● في انتظار اليد</div><div class="pill" id="counter">0 / 9 قطع</div></div>
 <div id="puzzle"></div><canvas id="hand"></canvas><div id="cursor"></div>
 <div id="message">اضغط بدء التجربة ثم قرّب الإبهام من السبابة لالتقاط القطعة</div>
-<button id="restart">إعادة اللغز</button><div id="countdown"></div>
+<button id="restart">إعادة اللغز</button><div id="countdown"><span id="countNumber"></span><button id="skipCountdown" type="button">تخطي</button></div>
 <section id="startScreen"><div class="panel">
 <div class="brand">PUZZLE CAM · INTERACTIVE</div><h1>ركّب صورتك بإيدك</h1>
 <p>الكاميرا هتملأ الشاشة. هتظهر صورتك في لغز 3×3. ضم الإبهام والسبابة فوق أي قطعة، حرّكها لمكانها الصحيح وافتح صوابعك لتبديل مكانها.</p>
@@ -57,8 +58,10 @@ const cursor=document.getElementById('cursor'),message=document.getElementById('
 const counter=document.getElementById('counter'),handStatus=document.getElementById('handStatus');
 const startScreen=document.getElementById('startScreen'),begin=document.getElementById('begin');
 const restart=document.getElementById('restart'),countdown=document.getElementById('countdown');
+const countNumber=document.getElementById('countNumber'),skipCountdown=document.getElementById('skipCountdown');
 let stream=null,hands=null,started=false,tiles=[],placed=0,held=null;
 let grabOffset={x:0,y:0},pinchWas=false,faceData=null,trackingBusy=false,trackingTimer=null;
+let heldSourceSlot=null;
 
 const links=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[17,0]];
 
@@ -111,7 +114,7 @@ function updateSolved(){
 }
 
 function buildPuzzle(){
- puzzle.innerHTML='';tiles=[];placed=0;held=null;
+ puzzle.innerHTML='';tiles=[];placed=0;held=null;heldSourceSlot=null;
  counter.textContent='0 / 9 قطع';restart.style.display='none';
  const order=[...Array(9).keys()];
  for(let i=order.length-1;i>0;i--){
@@ -142,11 +145,15 @@ function grab(pos){
   const t=candidates[i],r=t.el.getBoundingClientRect();
   if(pos.x>=r.left&&pos.x<=r.right&&pos.y>=r.top&&pos.y<=r.bottom){
    held=t;
+   // حفظ الخانة الأصلية قبل نقل العنصر خارج شبكة اللغز.
+   heldSourceSlot=t.el.parentElement;
    grabOffset={x:pos.x-r.left,y:pos.y-r.top};
    t.el.classList.add('drag');
    t.el.style.position='fixed';t.el.style.inset='auto';
+   t.el.style.display='block';t.el.style.boxSizing='border-box';
    t.el.style.width=r.width+'px';t.el.style.height=r.height+'px';
    t.el.style.left=r.left+'px';t.el.style.top=r.top+'px';
+   t.el.style.margin='0';t.el.style.zIndex='100';
    document.body.appendChild(t.el);
    message.textContent='ممسوكة! حرّك إيدك للمكان المطلوب وافتح صوابعك';
    return;
@@ -160,38 +167,29 @@ function moveHeld(pos){
  held.el.style.top=(pos.y-grabOffset.y)+'px';
 }
 
-/* عند فتح الأصابع: تبديل القطعة مع القطعة الموجودة في الخانة */
+/* تبديل القطعة مع القطعة الموجودة في الخانة المستهدفة */
 function dropHeld(pos){
  if(!held)return;
- const t=held;
- const slots=[...puzzle.children];
+ const t=held,slots=[...puzzle.children];
  let targetSlot=null;
  for(const slot of slots){
   const r=slot.getBoundingClientRect();
-  if(pos.x>=r.left&&pos.x<=r.right&&pos.y>=r.top&&pos.y<=r.bottom){
-   targetSlot=slot;break;
-  }
+  if(pos.x>=r.left&&pos.x<=r.right&&pos.y>=r.top&&pos.y<=r.bottom){targetSlot=slot;break;}
  }
  t.el.classList.remove('drag');
  if(targetSlot){
-  const sourceSlot=slots.find(s=>s===t.el.parentElement) || null;
   const occupant=tiles.find(other=>other!==t&&other.el.parentElement===targetSlot);
-  if(occupant&&sourceSlot)sourceSlot.appendChild(occupant.el);
+  // القطعة التي كانت في الخانة المستهدفة تنتقل إلى خانة القطعة الممسوكة.
+  if(occupant&&heldSourceSlot)heldSourceSlot.appendChild(occupant.el);
   targetSlot.appendChild(t.el);
-  t.el.removeAttribute('style');
-  message.textContent='تم تحريك القطعة';
+  message.textContent=occupant?'تم تبديل مكان القطعتين':'تم وضع القطعة';
  }else{
-  /* لو سابها خارج اللوحة، رجّعها لأقرب خانة فاضية */
-  const empty=slots.find(s=>!tiles.some(other=>other.el.parentElement===s));
-  if(empty)empty.appendChild(t.el);
-  else{
-   const original=slots.find(s=>Number(s.dataset.n)-1===t.correct);
-   original.appendChild(t.el);
-  }
-  t.el.removeAttribute('style');
-  message.textContent='حط القطعة داخل الإطار';
+  // الإفلات خارج الشبكة يعيد القطعة إلى موضعها السابق.
+  if(heldSourceSlot)heldSourceSlot.appendChild(t.el);
+  message.textContent='أعدنا القطعة لمكانها — أفلتها داخل الإطار';
  }
- held=null;
+ t.el.removeAttribute('style');
+ held=null;heldSourceSlot=null;
  updateSolved();
  if(placed!==9)message.textContent=placed+' من 9 قطع صحيحة — كمّل تركيب الصورة';
 }
@@ -217,7 +215,9 @@ function handResults(res){
  const thumb=pts[4],index=pts[8];
  const mid={x:(thumb.x+index.x)/2,y:(thumb.y+index.y)/2};
  const dist=Math.hypot(thumb.x-index.x,thumb.y-index.y);
- const pinched=dist<Math.min(innerWidth,innerHeight)*.052;
+ const pinchStart=Math.min(innerWidth,innerHeight)*.078;
+ const pinchRelease=Math.min(innerWidth,innerHeight)*.105;
+ const pinched=pinchWas ? dist<pinchRelease : dist<pinchStart;
  cursor.style.display='block';cursor.style.left=mid.x+'px';cursor.style.top=mid.y+'px';
  cursor.classList.toggle('pinched',pinched);
  if(pinched&&!pinchWas&&!held)grab(mid);
@@ -227,9 +227,21 @@ function handResults(res){
 }
 
 async function tick(n){
- countdown.textContent=n;countdown.classList.remove('show');
- void countdown.offsetWidth;countdown.classList.add('show');
- await new Promise(r=>setTimeout(r,850));
+ countNumber.textContent=n;
+ countdown.classList.add('show');
+ await new Promise(resolve=>{
+  let finished=false;
+  const finish=()=>{
+   if(finished)return;
+   finished=true;
+   clearTimeout(timer);
+   skipCountdown.removeEventListener('click',finish);
+   resolve();
+  };
+  const timer=setTimeout(finish,850);
+  skipCountdown.addEventListener('click',finish,{once:true});
+ });
+ countdown.classList.remove('show');
 }
 async function trackingLoop(){
  if(!started)return;
