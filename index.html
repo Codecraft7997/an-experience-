@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -6,632 +5,291 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#08090d">
 <title>PUZZLE CAM | تحكم باليد</title>
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
-
 *{box-sizing:border-box}
-html,body{
- margin:0;width:100%;height:100%;overflow:hidden;
- background:#050609;color:white;font-family:Cairo,Arial,sans-serif
-}
-
-#video{
- position:fixed;inset:0;width:100%;height:100%;
- object-fit:cover;transform:scaleX(-1);
- background:#111;z-index:0
-}
-#shade{
- position:fixed;inset:0;
- background:linear-gradient(180deg,#0009,transparent 24%,transparent 68%,#0008);
- z-index:1;pointer-events:none
-}
-#top{
- position:fixed;z-index:8;top:env(safe-area-inset-top,10px);
- left:0;right:0;padding:12px 14px;
- display:flex;align-items:center;justify-content:space-between;
- gap:8px;pointer-events:none
-}
-.pill{
- background:#08090dcc;border:1px solid #d8b95788;
- border-radius:8px;padding:7px 10px;font-size:10px;
- color:#f4d77d;backdrop-filter:blur(9px)
-}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050609;color:#fff;font-family:Cairo,Arial,sans-serif}
+#video{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1);background:#111;z-index:0}
+#shade{position:fixed;inset:0;background:linear-gradient(180deg,#0008,transparent 24%,transparent 68%,#0008);z-index:1;pointer-events:none}
+#top{position:fixed;z-index:8;top:env(safe-area-inset-top,10px);left:0;right:0;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;pointer-events:none}
+.pill{background:#08090dcc;border:1px solid #d8b95788;border-radius:8px;padding:7px 10px;font-size:10px;color:#f4d77d;backdrop-filter:blur(9px)}
 #counter{font-weight:800}
-
-#puzzle{
- position:fixed;z-index:4;
- width:min(72vw,min(72vh,390px));
- aspect-ratio:1;left:50%;top:47%;
- transform:translate(-50%,-50%);
- border:2px solid #e4c34d;
- display:grid;grid-template-columns:repeat(3,1fr);
- grid-template-rows:repeat(3,1fr);
- box-shadow:0 0 35px #f2d15a38;
- direction:ltr
-}
-.slot{
- position:relative;border:1px solid #b7d39c99;
- background:#ffffff12;overflow:visible
-}
-.slot:after{
- content:attr(data-n);position:absolute;top:3px;left:5px;
- color:#fff7;font:10px Arial;pointer-events:none
-}
-.piece{
- position:absolute;inset:0;background-repeat:no-repeat;
- filter:grayscale(1) contrast(1.06);
- border:1px solid #fff5;
- box-shadow:0 3px 14px #0008;
- touch-action:none;cursor:grab;z-index:2
-}
-.piece.drag{
- z-index:20;filter:grayscale(1) contrast(1.12)
- drop-shadow(0 10px 14px #000b);
- border:2px solid #f1d46c
-}
-.piece.done{
- border-color:#b9d89a;
- box-shadow:inset 0 0 0 1px #b9d89a
-}
-
-#hand{
- position:fixed;z-index:7;inset:0;
- width:100%;height:100%;pointer-events:none
-}
-#cursor{
- position:fixed;z-index:9;width:24px;height:24px;
- border:2px solid #ffe17b;border-radius:50%;
- transform:translate(-50%,-50%);
- pointer-events:none;box-shadow:0 0 17px #ffd95a;
- background:#ffd95a22;display:none
-}
-#cursor.pinched{
- background:#ffe17b99;
- transform:translate(-50%,-50%) scale(.72)
-}
-
-#startScreen{
- position:fixed;inset:0;z-index:30;
- background:radial-gradient(ellipse at 50% 40%,#28242a,#090a0f 72%);
- display:grid;place-items:center;padding:25px;text-align:center
-}
-.panel{width:min(100%,440px)}
-.brand{font-size:11px;letter-spacing:4px;color:#e8c75f;font-weight:900}
+#puzzle{position:fixed;z-index:4;width:min(72vw,min(72vh,390px));aspect-ratio:1;left:50%;top:47%;transform:translate(-50%,-50%);border:2px solid #e4c34d;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);box-shadow:0 0 35px #f2d15a38;direction:ltr}
+.slot{position:relative;border:1px solid #d8c77a99;background:#ffffff12;overflow:visible}
+.slot:after{content:attr(data-n);position:absolute;top:3px;left:5px;color:#fff8;font:10px Arial;pointer-events:none}
+.piece{position:absolute;inset:0;background-repeat:no-repeat;filter:grayscale(1) contrast(1.06);border:1px solid #fff6;box-shadow:0 3px 14px #0008;touch-action:none;cursor:grab;z-index:2}
+.piece.drag{z-index:20;filter:grayscale(1) contrast(1.12) drop-shadow(0 10px 14px #000b);border:2px solid #f1d46c}
+.piece.done{border-color:#b9d89a;box-shadow:inset 0 0 0 1px #b9d89a}
+#hand{position:fixed;z-index:7;inset:0;width:100%;height:100%;pointer-events:none}
+#cursor{position:fixed;z-index:9;width:24px;height:24px;border:2px solid #ffe17b;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 17px #ffd95a;background:#ffd95a22;display:none}
+#cursor.pinched{background:#ffe17b99;transform:translate(-50%,-50%) scale(.72)}
+#startScreen{position:fixed;inset:0;z-index:30;background:radial-gradient(ellipse at 50% 40%,#28242a,#090a0f 72%);display:grid;place-items:center;padding:25px;text-align:center}
+.panel{width:min(100%,440px)}.brand{font-size:11px;letter-spacing:4px;color:#e8c75f;font-weight:900}
 h1{font-size:clamp(27px,7vw,42px);margin:8px 0}
 .panel p{color:#c0c0c8;font-size:14px;line-height:2;margin:0 auto 22px}
-
-button{
- font:800 14px Cairo;border:0;border-radius:12px;
- padding:13px 23px;cursor:pointer;
- background:linear-gradient(135deg,#f3dc91,#c59b3e);
- color:#17130b
-}
+button{font:800 14px Cairo;border:0;border-radius:12px;padding:13px 23px;cursor:pointer;background:linear-gradient(135deg,#f3dc91,#c59b3e);color:#17130b}
 button:disabled{opacity:.6}
-
-#message{
- position:fixed;z-index:10;
- bottom:calc(env(safe-area-inset-bottom,0px) + 20px);
- left:50%;transform:translateX(-50%);
- width:max-content;max-width:90vw;text-align:center;
- background:#090a0dcc;border:1px solid #d8b95777;
- border-radius:10px;padding:9px 14px;
- font-size:12px;backdrop-filter:blur(10px)
-}
-#restart{
- position:fixed;z-index:11;
- bottom:calc(env(safe-area-inset-bottom,0px) + 76px);
- left:50%;transform:translateX(-50%);
- display:none;padding:8px 16px;font-size:12px
-}
-#countdown{
- position:fixed;inset:0;z-index:20;
- display:none;place-items:center;
- font-size:100px;font-weight:900;
- color:#f5d56e;text-shadow:0 6px 25px #000
-}
-#countdown.show{
- display:grid;animation:count .8s ease
-}
-@keyframes count{
- 0%{opacity:0;transform:scale(1.5)}
- 25%,75%{opacity:1;transform:scale(1)}
- 100%{opacity:0;transform:scale(.7)}
-}
-#permission{
- font-size:11px;color:#92929b;
- margin-top:15px;line-height:1.8
-}
+#message{position:fixed;z-index:10;bottom:calc(env(safe-area-inset-bottom,0px) + 20px);left:50%;transform:translateX(-50%);width:max-content;max-width:90vw;text-align:center;background:#090a0dcc;border:1px solid #d8b95777;border-radius:10px;padding:9px 14px;font-size:12px;backdrop-filter:blur(10px)}
+#restart{position:fixed;z-index:11;bottom:calc(env(safe-area-inset-bottom,0px) + 76px);left:50%;transform:translateX(-50%);display:none;padding:8px 16px;font-size:12px}
+#countdown{position:fixed;inset:0;z-index:20;display:none;place-items:center;font-size:100px;font-weight:900;color:#f5d56e;text-shadow:0 6px 25px #000}
+#countdown.show{display:grid;animation:count .8s ease}
+@keyframes count{0%{opacity:0;transform:scale(1.5)}25%,75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.7)}}
+#permission{font-size:11px;color:#92929b;margin-top:15px;line-height:1.8}
 </style>
 </head>
-
 <body>
-
-<video id="video" autoplay playsinline muted></video>
-<div id="shade"></div>
-
-<div id="top">
- <div class="pill">PUZZLE CAM · HAND FRAME CAPTURE</div>
- <div class="pill" id="handStatus">● في انتظار اليد</div>
- <div class="pill" id="counter">0 / 9 قطع</div>
-</div>
-
-<div id="puzzle"></div>
-<canvas id="hand"></canvas>
-<div id="cursor"></div>
-
-<div id="message">
- اضغط بدء التجربة ثم قرّب الإبهام من السبابة لالتقاط القطعة
-</div>
-
-<button id="restart">إعادة اللغز</button>
-<div id="countdown"></div>
-
-<section id="startScreen">
- <div class="panel">
-  <div class="brand">PUZZLE CAM · INTERACTIVE</div>
-  <h1>ركّب صورتك بإيدك</h1>
-  <p>
-   الكاميرا هتملأ الشاشة. هتظهر صورتك في لغز 3×3،
-   امسك أي قطعة بضم الإبهام والسبابة،
-   حرّكها لمكانها الصحيح وسيبها.
-  </p>
-  <button id="begin">ابدأ وافتح الكاميرا</button>
-  <div id="permission">
-   استخدم Chrome واسمح بالكاميرا.
-   الصفحة لازم تكون HTTPS، والإنترنت مطلوب لتشغيل تتبع اليد.
-  </div>
- </div>
-</section>
-
+<video id="video" autoplay playsinline muted></video><div id="shade"></div>
+<div id="top"><div class="pill">PUZZLE CAM · HAND CONTROL</div><div class="pill" id="handStatus">● في انتظار اليد</div><div class="pill" id="counter">0 / 9 قطع</div></div>
+<div id="puzzle"></div><canvas id="hand"></canvas><div id="cursor"></div>
+<div id="message">اضغط بدء التجربة ثم قرّب الإبهام من السبابة لالتقاط القطعة</div>
+<button id="restart">إعادة اللغز</button><div id="countdown"></div>
+<section id="startScreen"><div class="panel">
+<div class="brand">PUZZLE CAM · INTERACTIVE</div><h1>ركّب صورتك بإيدك</h1>
+<p>الكاميرا هتملأ الشاشة. هتظهر صورتك في لغز 3×3. ضم الإبهام والسبابة فوق أي قطعة، حرّكها لمكانها الصحيح وافتح صوابعك لتبديل مكانها.</p>
+<button id="begin">ابدأ وافتح الكاميرا</button>
+<div id="permission">استخدم Chrome واسمح بالكاميرا. الصفحة لازم تكون HTTPS، والإنترنت مطلوب لتحميل تتبع اليد.</div>
+</div></section>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-
 <script>
-const video=document.getElementById('video');
-const puzzle=document.getElementById('puzzle');
-const handCanvas=document.getElementById('hand');
-const hctx=handCanvas.getContext('2d');
+const video=document.getElementById('video'),puzzle=document.getElementById('puzzle');
+const handCanvas=document.getElementById('hand'),hctx=handCanvas.getContext('2d');
+const cursor=document.getElementById('cursor'),message=document.getElementById('message');
+const counter=document.getElementById('counter'),handStatus=document.getElementById('handStatus');
+const startScreen=document.getElementById('startScreen'),begin=document.getElementById('begin');
+const restart=document.getElementById('restart'),countdown=document.getElementById('countdown');
+let stream=null,hands=null,started=false,tiles=[],placed=0,held=null;
+let grabOffset={x:0,y:0},pinchWas=false,faceData=null,trackingBusy=false,trackingTimer=null;
 
-const cursor=document.getElementById('cursor');
-const message=document.getElementById('message');
-const counter=document.getElementById('counter');
-const handStatus=document.getElementById('handStatus');
-
-const startScreen=document.getElementById('startScreen');
-const begin=document.getElementById('begin');
-const restart=document.getElementById('restart');
-const countdown=document.getElementById('countdown');
-
-let stream=null;
-let hands=null;
-let started=false;
-let tiles=[];
-let placed=0;
-let held=null;
-let grabOffset={x:0,y:0};
-let pinchWas=false;
-let faceData=null;
-let trackingBusy=false;
-let trackingTimer=null;
-
-const links=[
- [0,1],[1,2],[2,3],[3,4],
- [0,5],[5,6],[6,7],[7,8],
- [5,9],[9,10],[10,11],[11,12],
- [9,13],[13,14],[14,15],[15,16],
- [13,17],[17,18],[18,19],[19,20],
- [17,0]
-];
+const links=[[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[17,0]];
 
 function resize(){
  const dpr=window.devicePixelRatio||1;
- handCanvas.width=innerWidth*dpr;
- handCanvas.height=innerHeight*dpr;
- handCanvas.style.width=innerWidth+'px';
- handCanvas.style.height=innerHeight+'px';
+ handCanvas.width=innerWidth*dpr;handCanvas.height=innerHeight*dpr;
+ handCanvas.style.width=innerWidth+'px';handCanvas.style.height=innerHeight+'px';
  hctx.setTransform(dpr,0,0,dpr,0,0);
 }
+addEventListener('resize',resize);resize();
 
-addEventListener('resize',resize);
-resize();
+/* يحوّل إحداثيات MediaPipe إلى نفس مساحة الكاميرا المعروضة بـ object-fit:cover */
+function landmarkToScreen(l){
+ const vw=video.videoWidth,vh=video.videoHeight;
+ if(!vw||!vh)return{x:l.x*innerWidth,y:l.y*innerHeight};
+ const scale=Math.max(innerWidth/vw,innerHeight/vh);
+ const shownW=vw*scale,shownH=vh*scale;
+ const cropX=(shownW-innerWidth)/2,cropY=(shownH-innerHeight)/2;
+ return{x:(vw-l.x*vw)*scale-cropX,y:l.y*vh*scale-cropY};
+}
 
 function captureFace(){
- const w=video.videoWidth;
- const h=video.videoHeight;
-
- if(!w||!h) throw new Error('الكاميرا لم تنتج صورة بعد');
-
- const side=Math.min(w,h)*.58;
- const sx=(w-side)/2;
- const sy=(h-side)*.36;
-
- const c=document.createElement('canvas');
- c.width=600;
- c.height=600;
-
+ const w=video.videoWidth,h=video.videoHeight;
+ if(!w||!h)throw new Error('الكاميرا لم تنتج صورة بعد');
+ const side=Math.min(w,h)*.58,sx=(w-side)/2,sy=(h-side)*.36;
+ const c=document.createElement('canvas');c.width=600;c.height=600;
  const x=c.getContext('2d');
- x.translate(600,0);
- x.scale(-1,1);
+ x.translate(600,0);x.scale(-1,1);
  x.filter='grayscale(1) contrast(1.05)';
  x.drawImage(video,sx,sy,side,side,0,0,600,600);
-
  return c.toDataURL('image/jpeg',.92);
 }
 
-function buildPuzzle(){
- puzzle.innerHTML='';
- tiles=[];
+function updateSolved(){
  placed=0;
- counter.textContent='0 / 9 قطع';
+ tiles.forEach(t=>{
+  const slot=t.el.parentElement;
+  const idx=[...puzzle.children].indexOf(slot);
+  t.done=idx===t.correct;
+  t.el.classList.toggle('done',t.done);
+  if(t.done)placed++;
+ });
+ counter.textContent=placed+' / 9 قطع';
+ if(placed===9){
+  message.textContent='اكتملت الصورة! برافو عليك 🎉';
+  restart.style.display='block';
+ }else{
+  restart.style.display='none';
+ }
+}
 
- const order=[...Array(9).keys()]
- .sort(()=>Math.random()-.5);
-
+function buildPuzzle(){
+ puzzle.innerHTML='';tiles=[];placed=0;held=null;
+ counter.textContent='0 / 9 قطع';restart.style.display='none';
+ const order=[...Array(9).keys()];
+ for(let i=order.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [order[i],order[j]]=[order[j],order[i]];
+ }
  for(let i=0;i<9;i++){
   const slot=document.createElement('div');
-  slot.className='slot';
-  slot.dataset.n=i+1;
-  puzzle.appendChild(slot);
+  slot.className='slot';slot.dataset.n=i+1;puzzle.appendChild(slot);
  }
-
  order.forEach((correct,index)=>{
   const piece=document.createElement('div');
-  piece.className='piece';
-  piece.dataset.correct=correct;
-
-  const col=correct%3;
-  const row=Math.floor(correct/3);
-
+  piece.className='piece';piece.dataset.correct=correct;
+  const col=correct%3,row=Math.floor(correct/3);
   piece.style.backgroundImage=`url("${faceData}")`;
   piece.style.backgroundSize='300% 300%';
   piece.style.backgroundPosition=`${col*50}% ${row*50}%`;
-
-  const home=puzzle.children[index];
-  home.appendChild(piece);
-
-  const target=puzzle.children[correct];
-
-  tiles.push({
-   el:piece,
-   correct,
-   home,
-   target,
-   done:false
-  });
+  puzzle.children[index].appendChild(piece);
+  tiles.push({el:piece,correct,done:false});
  });
+ updateSolved();
 }
 
-function xyFromLandmark(l){
- return {
-  x:(1-l.x)*innerWidth,
-  y:l.y*innerHeight
- };
-}
-
-function handResults(res){
- hctx.clearRect(0,0,innerWidth,innerHeight);
-
- const lm=res.multiHandLandmarks?.[0];
-
- if(!lm){
-  handStatus.textContent='● ورّي الكاميرا إيدك';
-  cursor.style.display='none';
-  pinchWas=false;
-  return;
- }
-
- handStatus.textContent='● اليد متتبّعة';
-
- const pts=lm.map(xyFromLandmark);
-
- hctx.lineWidth=3;
- hctx.strokeStyle='#f2d16f';
- hctx.shadowColor='#f2d16f';
- hctx.shadowBlur=8;
-
- links.forEach(([a,b])=>{
-  hctx.beginPath();
-  hctx.moveTo(pts[a].x,pts[a].y);
-  hctx.lineTo(pts[b].x,pts[b].y);
-  hctx.stroke();
- });
-
- pts.forEach((p,i)=>{
-  hctx.beginPath();
-  hctx.arc(p.x,p.y,i===4||i===8?6:3.5,0,Math.PI*2);
-  hctx.fillStyle='#ffe17b';
-  hctx.fill();
- });
-
- hctx.shadowBlur=0;
-
- const thumb=pts[4];
- const index=pts[8];
-
- const mid={
-  x:(thumb.x+index.x)/2,
-  y:(thumb.y+index.y)/2
- };
-
- const dist=Math.hypot(
-  thumb.x-index.x,
-  thumb.y-index.y
- );
-
- const pinched=dist<Math.min(innerWidth,innerHeight)*.052;
-
- cursor.style.display='block';
- cursor.style.left=mid.x+'px';
- cursor.style.top=mid.y+'px';
- cursor.classList.toggle('pinched',pinched);
-
- if(pinched&&!pinchWas&&!held)grab(mid);
- if(pinched&&held)moveHeld(mid);
- if(!pinched&&pinchWas&&held)dropHeld(mid);
-
- pinchWas=pinched;
-}
-
+/* اختيار القطعة من تحت نقطة التقاء الإبهام والسبابة */
 function grab(pos){
  const candidates=tiles.filter(t=>!t.done);
-
  for(let i=candidates.length-1;i>=0;i--){
-  const t=candidates[i];
-  const r=t.el.getBoundingClientRect();
-
-  if(
-   pos.x>=r.left&&pos.x<=r.right&&
-   pos.y>=r.top&&pos.y<=r.bottom
-  ){
+  const t=candidates[i],r=t.el.getBoundingClientRect();
+  if(pos.x>=r.left&&pos.x<=r.right&&pos.y>=r.top&&pos.y<=r.bottom){
    held=t;
-
-   grabOffset={
-    x:pos.x-r.left,
-    y:pos.y-r.top
-   };
-
+   grabOffset={x:pos.x-r.left,y:pos.y-r.top};
    t.el.classList.add('drag');
-   t.el.style.position='fixed';
-   t.el.style.width=r.width+'px';
-   t.el.style.height=r.height+'px';
-   t.el.style.left=r.left+'px';
-   t.el.style.top=r.top+'px';
-
+   t.el.style.position='fixed';t.el.style.inset='auto';
+   t.el.style.width=r.width+'px';t.el.style.height=r.height+'px';
+   t.el.style.left=r.left+'px';t.el.style.top=r.top+'px';
    document.body.appendChild(t.el);
-
-   message.textContent='امسك القطعة وحرّك إيدك لمكانها الصحيح';
+   message.textContent='ممسوكة! حرّك إيدك للمكان المطلوب وافتح صوابعك';
    return;
   }
  }
-
- message.textContent='قرّب إيدك من قطعة عشان تمسكها';
+ message.textContent='قرّب نقطة الإمساك من قطعة';
 }
-
 function moveHeld(pos){
  if(!held)return;
-
  held.el.style.left=(pos.x-grabOffset.x)+'px';
  held.el.style.top=(pos.y-grabOffset.y)+'px';
 }
 
+/* عند فتح الأصابع: تبديل القطعة مع القطعة الموجودة في الخانة */
 function dropHeld(pos){
  if(!held)return;
-
  const t=held;
- const target=t.target.getBoundingClientRect();
-
- const inside=
- pos.x>=target.left-12&&
- pos.x<=target.right+12&&
- pos.y>=target.top-12&&
- pos.y<=target.bottom+12;
-
- t.el.classList.remove('drag');
-
- if(inside){
-  t.target.appendChild(t.el);
-  t.el.removeAttribute('style');
-
-  t.el.style.backgroundImage=`url("${faceData}")`;
-  t.el.style.backgroundSize='300% 300%';
-  t.el.style.backgroundPosition=
-   `${(t.correct%3)*50}% ${Math.floor(t.correct/3)*50}%`;
-
-  t.el.classList.add('done');
-  t.done=true;
-  placed++;
-
-  counter.textContent=placed+' / 9 قطع';
-
-  if(placed===9){
-   message.textContent='اكتملت الصورة! برافو عليك 🎉';
-   restart.style.display='block';
-  }else{
-   message.textContent='صح! القطعة اتحطت في مكانها.';
+ const slots=[...puzzle.children];
+ let targetSlot=null;
+ for(const slot of slots){
+  const r=slot.getBoundingClientRect();
+  if(pos.x>=r.left&&pos.x<=r.right&&pos.y>=r.top&&pos.y<=r.bottom){
+   targetSlot=slot;break;
   }
-
- }else{
-  t.home.appendChild(t.el);
-  t.el.removeAttribute('style');
-
-  t.el.style.backgroundImage=`url("${faceData}")`;
-  t.el.style.backgroundSize='300% 300%';
-  t.el.style.backgroundPosition=
-   `${(t.correct%3)*50}% ${Math.floor(t.correct/3)*50}%`;
-
-  message.textContent='مش مكانها — جرّب تحطها في مكان تاني';
  }
-
+ t.el.classList.remove('drag');
+ if(targetSlot){
+  const sourceSlot=slots.find(s=>s===t.el.parentElement) || null;
+  const occupant=tiles.find(other=>other!==t&&other.el.parentElement===targetSlot);
+  if(occupant&&sourceSlot)sourceSlot.appendChild(occupant.el);
+  targetSlot.appendChild(t.el);
+  t.el.removeAttribute('style');
+  message.textContent='تم تحريك القطعة';
+ }else{
+  /* لو سابها خارج اللوحة، رجّعها لأقرب خانة فاضية */
+  const empty=slots.find(s=>!tiles.some(other=>other.el.parentElement===s));
+  if(empty)empty.appendChild(t.el);
+  else{
+   const original=slots.find(s=>Number(s.dataset.n)-1===t.correct);
+   original.appendChild(t.el);
+  }
+  t.el.removeAttribute('style');
+  message.textContent='حط القطعة داخل الإطار';
+ }
  held=null;
+ updateSolved();
+ if(placed!==9)message.textContent=placed+' من 9 قطع صحيحة — كمّل تركيب الصورة';
+}
+
+function handResults(res){
+ hctx.clearRect(0,0,innerWidth,innerHeight);
+ const lm=res.multiHandLandmarks&&res.multiHandLandmarks[0];
+ if(!lm){
+  handStatus.textContent='● ورّي الكاميرا إيدك';
+  cursor.style.display='none';pinchWas=false;return;
+ }
+ handStatus.textContent='● اليد متتبّعة';
+ const pts=lm.map(landmarkToScreen);
+ hctx.lineWidth=3;hctx.strokeStyle='#f2d16f';hctx.shadowColor='#f2d16f';hctx.shadowBlur=8;
+ links.forEach(([a,b])=>{
+  hctx.beginPath();hctx.moveTo(pts[a].x,pts[a].y);hctx.lineTo(pts[b].x,pts[b].y);hctx.stroke();
+ });
+ pts.forEach((p,i)=>{
+  hctx.beginPath();hctx.arc(p.x,p.y,i===4||i===8?6:3.5,0,Math.PI*2);
+  hctx.fillStyle='#ffe17b';hctx.fill();
+ });
+ hctx.shadowBlur=0;
+ const thumb=pts[4],index=pts[8];
+ const mid={x:(thumb.x+index.x)/2,y:(thumb.y+index.y)/2};
+ const dist=Math.hypot(thumb.x-index.x,thumb.y-index.y);
+ const pinched=dist<Math.min(innerWidth,innerHeight)*.052;
+ cursor.style.display='block';cursor.style.left=mid.x+'px';cursor.style.top=mid.y+'px';
+ cursor.classList.toggle('pinched',pinched);
+ if(pinched&&!pinchWas&&!held)grab(mid);
+ if(pinched&&held)moveHeld(mid);
+ if(!pinched&&pinchWas&&held)dropHeld(mid);
+ pinchWas=pinched;
 }
 
 async function tick(n){
- countdown.textContent=n;
- countdown.classList.remove('show');
- void countdown.offsetWidth;
- countdown.classList.add('show');
-
+ countdown.textContent=n;countdown.classList.remove('show');
+ void countdown.offsetWidth;countdown.classList.add('show');
  await new Promise(r=>setTimeout(r,850));
 }
-
 async function trackingLoop(){
  if(!started)return;
-
  if(video.readyState>=2&&!trackingBusy){
   trackingBusy=true;
-
-  try{
-   await hands.send({image:video});
-  }catch(e){
-   console.error('Hand tracking error:',e);
-  }
-
+  try{await hands.send({image:video});}
+  catch(e){console.error('Hand tracking:',e);}
   trackingBusy=false;
  }
-
- if(started){
-  trackingTimer=setTimeout(trackingLoop,30);
- }
+ if(started)trackingTimer=setTimeout(trackingLoop,33);
 }
-
 function stopCamera(){
  started=false;
-
- if(trackingTimer){
-  clearTimeout(trackingTimer);
-  trackingTimer=null;
- }
-
- if(stream){
-  stream.getTracks().forEach(track=>track.stop());
-  stream=null;
- }
-
+ if(trackingTimer){clearTimeout(trackingTimer);trackingTimer=null;}
+ if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
  video.srcObject=null;
 }
 
 async function startGame(){
  try{
-  begin.disabled=true;
-  begin.textContent='جاري تشغيل الكاميرا...';
-
-  if(!navigator.mediaDevices||
-     !navigator.mediaDevices.getUserMedia){
-   throw new Error(
-    'المتصفح لا يدعم الكاميرا. افتح الموقع من Chrome عبر HTTPS'
-   );
-  }
-
-  if(typeof Hands==='undefined'){
-   throw new Error(
-    'مكتبة تتبع اليد لم يتم تحميلها. تأكد من الإنترنت'
-   );
-  }
-
-  // تشغيل الكاميرا
+  begin.disabled=true;begin.textContent='جاري تشغيل الكاميرا...';
+  if(!navigator.mediaDevices?.getUserMedia)throw new Error('افتح الموقع من Chrome عبر HTTPS واسمح بالكاميرا');
+  if(typeof Hands==='undefined')throw new Error('مكتبة تتبع اليد لم تُحمّل. تأكد من الإنترنت');
   stream=await navigator.mediaDevices.getUserMedia({
-   audio:false,
-   video:{
-    facingMode:'user',
-    width:{ideal:1280},
-    height:{ideal:720}
-   }
+   audio:false,video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}}
   });
-
-  video.srcObject=stream;
-  await video.play();
-
-  if(!video.videoWidth){
-   await new Promise((resolve,reject)=>{
-    video.onloadedmetadata=resolve;
-    setTimeout(()=>{
-     if(!video.videoWidth)reject(
-      new Error('لم تصل صورة الكاميرا')
-     );
-    },10000);
-   });
-  }
-
+  video.srcObject=stream;await video.play();
+  if(!video.videoWidth)await new Promise((resolve,reject)=>{
+   video.onloadedmetadata=resolve;
+   setTimeout(()=>reject(new Error('انتهت مهلة انتظار الكاميرا')),10000);
+  });
   resize();
-
-  // تجهيز تتبع اليد
-  hands=new Hands({
-   locateFile:file=>
-    `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-  });
-
-  hands.setOptions({
-   maxNumHands:1,
-   modelComplexity:1,
-   minDetectionConfidence:.72,
-   minTrackingConfidence:.7
-  });
-
+  hands=new Hands({locateFile:file=>`https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`});
+  hands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:.72,minTrackingConfidence:.7});
   hands.onResults(handResults);
-
-  // بدء اللعبة
-  started=true;
-  startScreen.style.display='none';
-
-  for(let n=3;n>0;n--){
-   await tick(n);
-  }
-
+  await hands.initialize();
   faceData=captureFace();
   buildPuzzle();
-
-  message.textContent=
-   'ضم الإبهام والسبابة فوق قطعة، واسحبها لمكانها الصحيح';
-
+  startScreen.style.display='none';
+  started=true;
+  message.textContent='ضم الإبهام والسبابة فوق القطعة واسحبها لمكانها';
   trackingLoop();
-
  }catch(e){
-  console.error('Camera Error:',e);
-
-  stopCamera();
-
-  begin.disabled=false;
-  begin.textContent='حاول تشغيل الكاميرا مرة أخرى';
-
-  let errorText=e.message||'تعذر تشغيل الكاميرا';
-
-  if(e.name==='NotAllowedError'){
-   errorText='إذن الكاميرا مرفوض. اسمح للموقع باستخدام الكاميرا من إعدادات Chrome.';
-  }
-
-  if(e.name==='NotFoundError'){
-   errorText='لم يتم العثور على كاميرا بالجهاز.';
-  }
-
-  if(e.name==='NotReadableError'){
-   errorText='الكاميرا مستخدمة في تطبيق آخر. أغلق التطبيقات التي تستخدمها وجرب مجدداً.';
-  }
-
-  document.getElementById('permission').textContent=
-   'خطأ: '+errorText;
+  console.error('Camera Error:',e);stopCamera();
+  begin.disabled=false;begin.textContent='حاول تشغيل الكاميرا مرة أخرى';
+  let msg=e.message||'تعذر تشغيل الكاميرا';
+  if(e.name==='NotAllowedError')msg='إذن الكاميرا مرفوض. اسمح للموقع باستخدام الكاميرا من إعدادات Chrome.';
+  if(e.name==='NotFoundError')msg='لم يتم العثور على كاميرا بالجهاز.';
+  if(e.name==='NotReadableError')msg='الكاميرا مستخدمة في تطبيق آخر. أغلقه وجرب مجدداً.';
+  document.getElementById('permission').textContent='خطأ: '+msg;
  }
 }
-
 begin.addEventListener('click',startGame);
-
 restart.onclick=()=>{
  if(!video.videoWidth)return;
-
- faceData=captureFace();
- buildPuzzle();
-
- restart.style.display='none';
+ faceData=captureFace();buildPuzzle();
  message.textContent='لغز جديد! امسك القطع بضم الإبهام والسبابة.';
 };
-
 addEventListener('beforeunload',stopCamera);
-
-document.addEventListener('visibilitychange',()=>{
- if(document.hidden&&started){
-  stopCamera();
- }
-});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&started)stopCamera();});
 </script>
-
 </body>
 </html>
